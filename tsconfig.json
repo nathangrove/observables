@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "outDir": "types",
+        "declaration": true,
+        "baseUrl": "src",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "sourceMap": true,
+        "noImplicitAny": false,
+        "module": "commonjs",
+        "lib": ["es2017", "es5", "es6", "dom"],
+        "moduleResolution": "node",
+        "target": "es5",
+        "typeRoots": [
+          "../node_modules/@types"
+        ]
+    },
+    "include": [
+        "./src/**/*"
+    ],
+  }

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test</title>
+</head>
+<body>
+
+    <div id="app">
+      <label for="thing">Name:</label>
+      <input id="thing" type="text" />
+      <p class="formname"></p> 
+    </div>
+
+
+  <script src="observable.js"></script>
+  <script>
+  
+      var inputText   = document.getElementById('thing');
+      var textDisplay = document.querySelector('.formname');
+      
+      var input$      = Observable.fromInputEvent(inputText, 'keyup');
+
+      var sub = input$.subscribe(function(ev) {
+        var value = ev.target.value;
+        textDisplay.textContent = value;
+        
+        if(value === 'stop') {
+          sub.unsubscribe();
+          inputText.value = '';
+          textDisplay.textContent = '';
+        }
+      });
+
+  </script>
+
+</body>
+</html>
