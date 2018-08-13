@@ -35,12 +35,10 @@ const config = {
         exclude: /node_modules/
       },{
         test: /(\.jsx|\.js)$/,
-        loader: 'babel-loader',
-        exclude: /(node_modules|bower_components)/
-      },
-      {
-        test: /(\.jsx|\.js)$/,
-        loader: 'eslint-loader',
+        use: [
+          "babel-loader",
+          "eslint-loader",
+        ],
         exclude: /node_modules/
       }
     ]

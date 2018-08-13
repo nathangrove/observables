@@ -1,3 +1,2 @@
-import { Observer } from './classes/observer';
-import { Observable } from './classes/observable';
-export { Observer, Observable };
+export * from './classes/observer';
+export * from './classes/observable';

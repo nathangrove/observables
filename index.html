@@ -21,8 +21,7 @@
       
       var input$      = Observable.fromInputEvent(inputText, 'keyup');
 
-      var sub = input$.subscribe(function(ev) {
-        var value = ev.target.value;
+      var sub = input$.subscribe(function(value) {
         textDisplay.textContent = value;
         
         if(value === 'stop') {
@@ -30,7 +29,31 @@
           inputText.value = '';
           textDisplay.textContent = '';
         }
+
       });
+
+
+
+    var a;
+    var test = new Observable( function(observer) { let i = 0; setInterval(() => observer.next(i++), 1000); setTimeout( () => { observer.error('some error'); }, 10000) });
+
+    setTimeout(() => {
+        console.log('starting root0');
+        a = test.subscribe( count => console.log('root0',count) ).catch( e => console.error('root0',e) );
+    }, 2500);
+
+
+    setTimeout( () => {
+        console.log('forking root0');
+        a.fork( count => console.log('fork',count) ).catch( e => console.error('fork',e) );
+    }, 5000);
+
+
+    setTimeout( () => {
+      console.log('duplicating root0');
+      test.subscribe( count => console.log('root1', count) ).catch( e => console.error('root1',e) );
+    },7500);
+
 
   </script>
 

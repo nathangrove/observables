@@ -1,13 +1,15 @@
 export class Observer {
     isSubscribed: boolean = true; //this will track our subscribtion state
     _unsubscribe: Function;
-    
+    forks: Function[] = [];
+    catches: Function[] = [];
+
+    observers: any[] = [];
+
     constructor(
         private observer: any
     ){ 
-        if (typeof observer === 'function') {
-            this.observer = { next: observer };
-        }
+        if (typeof observer === 'function') this.observer = { next: observer };
     }
     
     
@@ -18,20 +20,26 @@ export class Observer {
         
         try {
             this.observer.next(value);
+            this.forks.forEach( f => f(value) );
         } catch (e) {
             // we want to unsubscribe only if there is an error
             this.unsubscribe();
         }
     }
     
-    
+    catch(errFunction?: Function): Observer{
+        this.catches.push(errFunction);
+        return this;
+    }
+
     error(err) {
-        if (!this.isSubscribed || !this.observer.error) {
+        if (!this.isSubscribed) {
             return;
         }
         
         try {
-            this.observer.error(err);
+            // this.observer.error(err);
+            this.catches.forEach( c => c(err) );
         } catch (e) {}
         
         // we will unsubscribe no matter what happens
@@ -45,7 +53,7 @@ export class Observer {
         
         try {
             this.observer.complete();
-        } catch (e) { console.log(e); }
+        } catch (e) { }
         
         // we will unsubscribe no matter what happens
         this.unsubscribe();
@@ -61,6 +69,12 @@ export class Observer {
         if(this._unsubscribe) {
             this._unsubscribe();
         }
+    }
+
+
+    fork(next: Function): Observer{
+        this.forks.push(next);
+        return this;
     }
     
     

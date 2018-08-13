@@ -1,15 +1,17 @@
 import { Observer } from './observer';
 
 export class Observable {
+
     constructor(
         private subscriber: any
     ){ }
 
-    subscribe(observer: Function){
+    subscribe(observer: Function): Observer{
         //make it an observer
-        this.subscriber(new Observer(observer));
+        let o: Observer = new Observer(observer);
+        this.subscriber(o);
+        return o;
     }
-
 
     static fromArray(arr) {
         return new Observable(function(observer: Observer) {
@@ -25,7 +27,7 @@ export class Observable {
 
     static fromInputEvent(element: Element, eventType: string){
         return new Observable(function(observer: Observer) {
-            var handler = ev => observer.next(ev);
+            var handler = ev => observer.next(ev.target.value);
             element.addEventListener(eventType, handler);
             
             observer.setUnsubscribe(function() {
