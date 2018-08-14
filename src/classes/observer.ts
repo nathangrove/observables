@@ -1,81 +1,88 @@
 export class Observer {
+
     isSubscribed: boolean = true; //this will track our subscribtion state
-    _unsubscribe: Function;
-    forks: Function[] = [];
+
+    unsubs: Function[] = [];
+    nexts: Function[] = [];
+    completes: Function[] = [];
     catches: Function[] = [];
 
-    observers: any[] = [];
-
     constructor(
-        private observer: any
+        private nextFunc : any,
+        private promise: boolean = false
     ){ 
-        if (typeof observer === 'function') this.observer = { next: observer };
+        if (!nextFunc) throw 'Next observer is required';
+        this.nexts.push(nextFunc);
     }
     
     
-    next(value) {
-        if (!this.isSubscribed || !this.observer.next) {
-            return;
-        }
+    public next(value) {
+        if (!this.isSubscribed || !this.nexts.length) return;
         
         try {
-            this.observer.next(value);
-            this.forks.forEach( f => f(value) );
+
+            this.nexts.forEach( f => f(value) );
+            if (this.promise) this._complete();
+
         } catch (e) {
             // we want to unsubscribe only if there is an error
-            this.unsubscribe();
+            this.error(e);
         }
     }
     
-    catch(errFunction?: Function): Observer{
+    public catch(errFunction?: Function): Observer{
         this.catches.push(errFunction);
         return this;
     }
+    
+    public unsubscribe(unsubFunc: Function): Observer {
+        this.unsubs.push(unsubFunc);
+        return this;
+    }
+   
+    public complete(completeFunc?: Function): Observer {
+        if (!completeFunc) this._complete();
+        this.completes.push(completeFunc);
+        return this;
+    }
 
-    error(err) {
-        if (!this.isSubscribed) {
-            return;
-        }
+    public fork(next: Function): Observer{
+        this.nexts.push(next);
+        return this;
+    }
+
+
+    public error(err: any) {
+        if (!this.isSubscribed) return;
         
         try {
             // this.observer.error(err);
             this.catches.forEach( c => c(err) );
-        } catch (e) {}
+        } catch (e) { console.error('Observable error',e) }
         
         // we will unsubscribe no matter what happens
-        this.unsubscribe();
+        this._unsubscribe();
     }
-    
-    complete() {
-        if (!this.isSubscribed || !this.observer.complete) {
-            return;
+ 
+
+    private _complete(){
+        if (!this.isSubscribed) return;
+        
+        if (this.completes.length){
+            try {
+                this.completes.forEach( f => f() );
+            } catch (e) { this.error(e) }
         }
         
-        try {
-            this.observer.complete();
-        } catch (e) { }
-        
         // we will unsubscribe no matter what happens
-        this.unsubscribe();
+        this._unsubscribe();
     }
-    
-    setUnsubscribe(unsub: Function) {
-        this._unsubscribe = unsub;
-    }
-    
-    unsubscribe() {
+
+    private _unsubscribe(){
         this.isSubscribed = false;
-        
-        if(this._unsubscribe) {
-            this._unsubscribe();
-        }
+        if (this.unsubs.length) this.unsubs.forEach( f => f() );
     }
 
-
-    fork(next: Function): Observer{
-        this.forks.push(next);
-        return this;
-    }
     
     
 }

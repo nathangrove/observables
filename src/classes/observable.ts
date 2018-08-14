@@ -6,6 +6,13 @@ export class Observable {
         private subscriber: any
     ){ }
 
+    then(observer: Function): Observer {
+        //make it an observer
+        let o: Observer = new Observer(observer,true);
+        this.subscriber(o);
+        return o;
+    }
+
     subscribe(observer: Function): Observer{
         //make it an observer
         let o: Observer = new Observer(observer);
@@ -30,7 +37,7 @@ export class Observable {
             var handler = ev => observer.next(ev.target.value);
             element.addEventListener(eventType, handler);
             
-            observer.setUnsubscribe(function() {
+            observer.unsubscribe(function() {
               element.removeEventListener(eventType, handler);
             });
             

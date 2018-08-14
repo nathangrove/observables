@@ -37,6 +37,8 @@
     var a;
     var test = new Observable( function(observer) { let i = 0; setInterval(() => observer.next(i++), 1000); setTimeout( () => { observer.error('some error'); }, 10000) });
 
+    test.then( count => console.log('promise',count)).catch( err => console.error('promise',err) );
+
     setTimeout(() => {
         console.log('starting root0');
         a = test.subscribe( count => console.log('root0',count) ).catch( e => console.error('root0',e) );
